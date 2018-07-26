@@ -265,7 +265,7 @@ int main() {
           
             bool too_close = false;
           
-            vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size);
+            vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size, 0);
             //cout << "0: " << card_dist[0] << " 1: " << card_dist[1] << " 2: " << card_dist[2] << endl;
           
             //find ref_v to use
@@ -289,12 +289,6 @@ int main() {
                   //ref_vel = 29.5;//mph
                   too_close = true;
 
-                  /*
-                  if (lane > 0)
-                  {
-                    lane = 0;
-                  }
-                  */
                 }
               }
             }
@@ -303,27 +297,39 @@ int main() {
             int best_lane = helper.get_best_lane(card_dist);
           
             if ((lane != best_lane) && (!lane_change_requested)) {
+            
               lane_change_requested = true;
               if ((lane - best_lane) > 0){
                 cout << "left turn requested" << endl;
                 if ((lane - best_lane) > 1) {
-                  lane = lane - 1;
+                  int new_lane = lane - 1;
+                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, new_lane, prev_size)) {
+                    lane = new_lane;
+                  }
+                  
                 } else {
-                  lane = best_lane;
+                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, best_lane, prev_size)) {
+                    lane = best_lane;
+                  }
                 }
                 
               } else {
                 cout << "right turn requested" << endl;
                 if ((lane - best_lane) < -1) {
-                  lane = lane + 1;
+                  int new_lane = lane + 1;
+                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, new_lane, prev_size)) {
+                    lane = new_lane;
+                  }
                 } else {
-                  lane = best_lane;
+                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, best_lane, prev_size)) {
+                    lane = best_lane;
+                  }
                 }
               }
             }
    
             if (lane_change_requested) {
-              //check if made the requested lane change
+              //check if we made the requested lane change
               if (car_d < (2+4*lane+0.5) && car_d > (2+4*lane-0.5)) {
                 lane_change_requested = false;
                 cout << "lane change finished" << endl;
@@ -338,6 +344,8 @@ int main() {
             {
               ref_vel += .224;
             }
+          
+          
           
             // Create a list of widely spaced (x,y) waypoints, evenly spaced at 30m
             // To be interpolated with slines later on

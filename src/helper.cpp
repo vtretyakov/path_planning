@@ -9,6 +9,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <stdlib.h>
 
 Helper::Helper() {
     
@@ -18,12 +19,8 @@ Helper::~Helper() {
     
 }
 
-vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>> &fusion_data, double car_s, double car_d, int prev_path_size) {
-  //  cout << "car_s: " << car_s << " car_d: " << car_d << endl;
- // vector<double> car_dist;
- // vector<double> car_dist_per_lane(3);
+vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>> &fusion_data, double car_s, double car_d, int prev_path_size, double threshold) {
   vector<double> smallest_car_dist_per_lane = {10000.0,10000.0,10000.0};
-  
   for (int i = 0; i < fusion_data.size(); i++) {
     float d = fusion_data[i][6];
     for (int lane = 0; lane < 3; lane++) {//we have 3 lanes
@@ -34,14 +31,12 @@ vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>
         double speed = sqrt(vx*vx + vy*vy);
         s += ((double)prev_path_size*.02*speed);
         double dist = s - car_s;
-        if ((dist < smallest_car_dist_per_lane[lane]) && (dist > 0)) {
+        if ((dist < smallest_car_dist_per_lane[lane]) && (dist > threshold)) {
           smallest_car_dist_per_lane[lane] = dist;
         }
       }
     }
-    
   }
-    
   return smallest_car_dist_per_lane;
 }
 
@@ -65,4 +60,17 @@ int Helper::get_best_lane(vector<double> closest_car_dist_in_lane) {
     }
   }
   return new_lane;
+}
+
+bool Helper::safe_to_change(const vector<vector<double>> &fusion_data, double car_s, double car_d, int new_lane, int prev_path_size) {
+  vector<double> smallest_car_dist_per_lane = this->get_closest_car_dist_in_lanes(fusion_data, car_s, car_d, prev_path_size, -15);
+
+  int current_lane = int(car_d/4.0);
+  if ((smallest_car_dist_per_lane[new_lane] > 20) && (abs(current_lane - new_lane) == 1)) {
+    cout << "safe to turn" << endl;
+    return true;
+  } else {
+    return false;
+  }
+  
 }

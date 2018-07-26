@@ -209,9 +209,9 @@ int main() {
   double ref_vel = 0.0; //mph
   
   Helper helper;
-  bool lane_change_requested = false;
+  bool prepare_to_change_lane = false;
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel, &helper, &lane_change_requested](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel, &helper, &prepare_to_change_lane](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -296,9 +296,10 @@ int main() {
           
             int best_lane = helper.get_best_lane(card_dist);
           
-            if ((lane != best_lane) && (!lane_change_requested)) {
+            //ToDo: move it to a state machine method
+            if ((lane != best_lane) && (!prepare_to_change_lane)) {
             
-              lane_change_requested = true;
+              prepare_to_change_lane = true;
               if ((lane - best_lane) > 0){
                 cout << "left turn requested" << endl;
                 if ((lane - best_lane) > 1) {
@@ -328,10 +329,10 @@ int main() {
               }
             }
    
-            if (lane_change_requested) {
+            if (prepare_to_change_lane) {
               //check if we made the requested lane change
               if (car_d < (2+4*lane+0.5) && car_d > (2+4*lane-0.5)) {
-                lane_change_requested = false;
+                prepare_to_change_lane = false;
                 cout << "lane change finished" << endl;
               }
             }

@@ -209,8 +209,9 @@ int main() {
   double ref_vel = 0.0; //mph
   
   Helper helper;
+  bool lane_change_requested = false;
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel, &helper](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel, &helper, &lane_change_requested](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -265,7 +266,7 @@ int main() {
             bool too_close = false;
           
             vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size);
-            cout << "0: " << card_dist[0] << " 1: " << card_dist[1] << " 2: " << card_dist[2] << endl;
+            //cout << "0: " << card_dist[0] << " 1: " << card_dist[1] << " 2: " << card_dist[2] << endl;
           
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++)
@@ -287,17 +288,7 @@ int main() {
                   //could also flag to try to change lanes
                   //ref_vel = 29.5;//mph
                   too_close = true;
-                  /*
-                  double largest_gap = 0;
-                  int new_lane;
-                  for (int i = 0; i < 3; i++){
-                    if (card_dist[i] > largest_gap){
-                      largest_gap = card_dist[i];
-                      new_lane = i;
-                    }
-                  }
-                  lane = new_lane;
-                  */
+
                   /*
                   if (lane > 0)
                   {
@@ -308,15 +299,36 @@ int main() {
               }
             }
           
-            double largest_gap = 0;
-            int new_lane;
-            for (int i = 0; i < 3; i++){
-              if (card_dist[i] > largest_gap){
-                largest_gap = card_dist[i];
-                new_lane = i;
+          
+            int best_lane = helper.get_best_lane(card_dist);
+          
+            if ((lane != best_lane) && (!lane_change_requested)) {
+              lane_change_requested = true;
+              if ((lane - best_lane) > 0){
+                cout << "left turn requested" << endl;
+                if ((lane - best_lane) > 1) {
+                  lane = lane - 1;
+                } else {
+                  lane = best_lane;
+                }
+                
+              } else {
+                cout << "right turn requested" << endl;
+                if ((lane - best_lane) < -1) {
+                  lane = lane + 1;
+                } else {
+                  lane = best_lane;
+                }
               }
             }
-            lane = new_lane;
+   
+            if (lane_change_requested) {
+              //check if made the requested lane change
+              if (car_d < (2+4*lane+0.5) && car_d > (2+4*lane-0.5)) {
+                lane_change_requested = false;
+                cout << "lane change finished" << endl;
+              }
+            }
           
             if (too_close)
             {

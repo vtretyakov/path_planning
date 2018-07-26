@@ -33,12 +33,9 @@ vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>
         double vy = fusion_data[i][4];
         double speed = sqrt(vx*vx + vy*vy);
         s += ((double)prev_path_size*.02*speed);
-        if (s < smallest_car_dist_per_lane[lane]) {
-         // car_dist_per_lane[lane] = s;
-            double dist = s - car_s;
-            if (dist > 0){
-              smallest_car_dist_per_lane[lane] = dist;
-            }
+        double dist = s - car_s;
+        if ((dist < smallest_car_dist_per_lane[lane]) && (dist > 0)) {
+          smallest_car_dist_per_lane[lane] = dist;
         }
       }
     }

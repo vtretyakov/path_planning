@@ -264,9 +264,10 @@ int main() {
             }
           
             bool too_close = false;
+            bool getting_close = false;
           
             vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size, 0);
-            //cout << "0: " << card_dist[0] << " 1: " << card_dist[1] << " 2: " << card_dist[2] << endl;
+            int best_lane = helper.get_best_lane(card_dist);
           
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++)
@@ -288,16 +289,15 @@ int main() {
                   //could also flag to try to change lanes
                   //ref_vel = 29.5;//mph
                   too_close = true;
-
+                } else if ((check_car_s > car_s) && ((check_car_s-car_s) < 60)){
+                  getting_close = true;
                 }
               }
             }
           
           
-            int best_lane = helper.get_best_lane(card_dist);
-          
             //ToDo: move it to a state machine method
-            if ((lane != best_lane) && (!prepare_to_change_lane)) {
+            if ((lane != best_lane) && (!prepare_to_change_lane) && getting_close) {
             
               prepare_to_change_lane = true;
               if ((lane - best_lane) > 0){

@@ -302,48 +302,6 @@ int main() {
               }
             }
           
-          
-            //ToDo: move it to a state machine method
-            if ((lane != best_lane) && (!prepare_to_change_lane) && getting_close) {
-            
-              prepare_to_change_lane = true;
-              if ((lane - best_lane) > 0){
-                cout << "left turn requested" << endl;
-                if ((lane - best_lane) > 1) {
-                  int new_lane = lane - 1;
-                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, new_lane, prev_size)) {
-                    lane = new_lane;
-                  }
-                  
-                } else {
-                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, best_lane, prev_size)) {
-                    lane = best_lane;
-                  }
-                }
-                
-              } else {
-                cout << "right turn requested" << endl;
-                if ((lane - best_lane) < -1) {
-                  int new_lane = lane + 1;
-                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, new_lane, prev_size)) {
-                    lane = new_lane;
-                  }
-                } else {
-                  if (helper.safe_to_change(sensor_fusion, car_s, car_d, best_lane, prev_size)) {
-                    lane = best_lane;
-                  }
-                }
-              }
-            }
-   
-            if (prepare_to_change_lane) {
-              //check if we made the requested lane change
-              if (car_d < (2+4*lane+0.5) && car_d > (2+4*lane-0.5)) {
-                prepare_to_change_lane = false;
-                cout << "lane change finished" << endl;
-              }
-            }
-          
             if (too_close)
             {
               if (ref_vel > check_speed){
@@ -359,7 +317,7 @@ int main() {
               ref_vel += .224*1.5;
             }
           
-          
+            lane = helper.get_next_lane(best_lane, lane, getting_close, sensor_fusion, car_s, car_d, prev_size);
           
             // Create a list of widely spaced (x,y) waypoints, evenly spaced at 30m
             // To be interpolated with slines later on

@@ -14,6 +14,7 @@
 Helper::Helper() {
   _check_behind_dist = -12;
   _check_infront_dist = 20;
+  _prepare_to_change_lane = false;
 }
 
 Helper::~Helper() {
@@ -63,12 +64,54 @@ int Helper::get_best_lane(vector<double> closest_car_dist_in_lane) {
   return new_lane;
 }
 
+int Helper::get_next_lane(int best_lane, int lane, bool getting_close, const vector<vector<double>> &fusion_data, double car_s, double car_d, int prev_path_size) {
+  if ((lane != best_lane) && (!_prepare_to_change_lane) && getting_close) {
+    _prepare_to_change_lane = true;
+    if ((lane - best_lane) > 0){
+      //cout << "left turn requested" << endl;
+      if ((lane - best_lane) > 1) {
+        int new_lane = lane - 1;
+        if (safe_to_change(fusion_data, car_s, car_d, new_lane, prev_path_size)) {
+          lane = new_lane;
+        }
+        
+      } else {
+        if (safe_to_change(fusion_data, car_s, car_d, best_lane, prev_path_size)) {
+          lane = best_lane;
+        }
+      }
+      
+    } else {
+      //cout << "right turn requested" << endl;
+      if ((lane - best_lane) < -1) {
+        int new_lane = lane + 1;
+        if (safe_to_change(fusion_data, car_s, car_d, new_lane, prev_path_size)) {
+          lane = new_lane;
+        }
+      } else {
+        if (safe_to_change(fusion_data, car_s, car_d, best_lane, prev_path_size)) {
+          lane = best_lane;
+        }
+      }
+    }
+  }
+  
+  if (_prepare_to_change_lane) {
+    //check if we made the requested lane change
+    if (car_d < (2+4*lane+0.5) && car_d > (2+4*lane-0.5)) {
+      _prepare_to_change_lane = false;
+      //cout << "lane change finished" << endl;
+    }
+  }
+  return lane;
+}
+
 bool Helper::safe_to_change(const vector<vector<double>> &fusion_data, double car_s, double car_d, int new_lane, int prev_path_size) {
   vector<double> smallest_car_dist_per_lane = get_closest_car_dist_in_lanes(fusion_data, car_s, car_d, prev_path_size, _check_behind_dist);
 
   int current_lane = int(car_d/4.0);
   if ((smallest_car_dist_per_lane[new_lane] > _check_infront_dist) && (abs(current_lane - new_lane) == 1)) {
-    cout << "safe to turn" << endl;
+    //cout << "safe to turn" << endl;
     return true;
   } else {
     return false;

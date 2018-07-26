@@ -9,6 +9,7 @@
 #include "Eigen-3.3/Eigen/QR"
 #include "json.hpp"
 #include "spline.h"
+#include "helper.hpp"
 
 using namespace std;
 
@@ -206,8 +207,10 @@ int main() {
   
   //Reference velecoty
   double ref_vel = 0.0; //mph
+  
+  Helper helper;
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane, &ref_vel, &helper](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -261,6 +264,9 @@ int main() {
           
             bool too_close = false;
           
+            vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size);
+            cout << "0: " << card_dist[0] << " 1: " << card_dist[1] << " 2: " << card_dist[2] << endl;
+          
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++)
             {
@@ -281,13 +287,36 @@ int main() {
                   //could also flag to try to change lanes
                   //ref_vel = 29.5;//mph
                   too_close = true;
+                  /*
+                  double largest_gap = 0;
+                  int new_lane;
+                  for (int i = 0; i < 3; i++){
+                    if (card_dist[i] > largest_gap){
+                      largest_gap = card_dist[i];
+                      new_lane = i;
+                    }
+                  }
+                  lane = new_lane;
+                  */
+                  /*
                   if (lane > 0)
                   {
                     lane = 0;
                   }
+                  */
                 }
               }
             }
+          
+            double largest_gap = 0;
+            int new_lane;
+            for (int i = 0; i < 3; i++){
+              if (card_dist[i] > largest_gap){
+                largest_gap = card_dist[i];
+                new_lane = i;
+              }
+            }
+            lane = new_lane;
           
             if (too_close)
             {

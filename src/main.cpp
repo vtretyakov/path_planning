@@ -265,9 +265,11 @@ int main() {
           
             bool too_close = false;
             bool getting_close = false;
+            bool close_to_collide = false;
           
             vector<double> card_dist = helper.get_closest_car_dist_in_lanes(sensor_fusion, car_s, car_d, prev_size, 0);
             int best_lane = helper.get_best_lane(card_dist);
+            double check_speed;
           
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++)
@@ -278,7 +280,7 @@ int main() {
               {
                 double vx = sensor_fusion[i][3];
                 double vy = sensor_fusion[i][4];
-                double check_speed = sqrt(vx*vx + vy*vy);
+                check_speed = sqrt(vx*vx + vy*vy);
                 double check_car_s = sensor_fusion[i][5];
                 
                 check_car_s += ((double)prev_size*.02*check_speed); //if using previous points can project s value out
@@ -288,7 +290,12 @@ int main() {
                   //do some logic here, lower reference velocity so we don't crach into the car in front of us
                   //could also flag to try to change lanes
                   //ref_vel = 29.5;//mph
-                  too_close = true;
+                  if ((check_car_s-car_s) < 15){
+                    close_to_collide = true;
+                  } else {
+                    too_close = true;
+                  }
+                  
                 } else if ((check_car_s > car_s) && ((check_car_s-car_s) < 60)){
                   getting_close = true;
                 }
@@ -339,11 +346,17 @@ int main() {
           
             if (too_close)
             {
-              ref_vel -= .224; //5 m/s^2
+              if (ref_vel > check_speed){
+                ref_vel -= .224; //.224 = 5 m/s^2
+              }
+            }
+            else if (close_to_collide)
+            {
+              ref_vel -= .224*2.0;
             }
             else if (ref_vel < 49.5)
             {
-              ref_vel += .224;
+              ref_vel += .224*1.5;
             }
           
           

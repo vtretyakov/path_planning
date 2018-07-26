@@ -22,8 +22,8 @@ class Helper {
     int get_best_lane(vector<double> closest_car_dist_in_lane);
     bool safe_to_change(const vector<vector<double>> &fusion_data, double car_s, double car_d, int new_lane, int prev_path_size);
   private:
-    vector<double> _car_dist;
-    vector<double> _car_vel;
+    double _check_behind_dist;
+    double _check_infront_dist;
     bool increasing_order (int i, int j);
 };
 

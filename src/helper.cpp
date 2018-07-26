@@ -12,7 +12,8 @@
 #include <stdlib.h>
 
 Helper::Helper() {
-    
+  _check_behind_dist = -12;
+  _check_infront_dist = 20;
 }
 
 Helper::~Helper() {
@@ -63,10 +64,10 @@ int Helper::get_best_lane(vector<double> closest_car_dist_in_lane) {
 }
 
 bool Helper::safe_to_change(const vector<vector<double>> &fusion_data, double car_s, double car_d, int new_lane, int prev_path_size) {
-  vector<double> smallest_car_dist_per_lane = this->get_closest_car_dist_in_lanes(fusion_data, car_s, car_d, prev_path_size, -15);
+  vector<double> smallest_car_dist_per_lane = get_closest_car_dist_in_lanes(fusion_data, car_s, car_d, prev_path_size, _check_behind_dist);
 
   int current_lane = int(car_d/4.0);
-  if ((smallest_car_dist_per_lane[new_lane] > 20) && (abs(current_lane - new_lane) == 1)) {
+  if ((smallest_car_dist_per_lane[new_lane] > _check_infront_dist) && (abs(current_lane - new_lane) == 1)) {
     cout << "safe to turn" << endl;
     return true;
   } else {

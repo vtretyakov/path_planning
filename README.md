@@ -100,41 +100,46 @@ using the following settings:
 
 Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
 
-## Project Instructions and Rubric
+## [Rubric] (https://review.udacity.com/#!/rubrics/1020/view) points
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+### Compilation
 
+#### The code compiles correctly.
 
-## Call for IDE Profiles Pull Requests
+The code compiles without errors with cmake and make as described in Basic Build Instructions.  `CMakeLists.txt` was  modified to include a helper class .cpp file.
 
-Help your fellow students!
+### Valid Trajectories
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
+#### The car is able to drive at least 4.32 miles without incident.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+The car is driving safely more than 4.32 miles without incident.
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+![Simulator window](imgs/simulator.png)
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+#### The car drives according to the speed limit.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
+The car does not exceed the speed limit of 50 mph. The car is driving as fast as possible as long as the traffic allows (please see the animation bellow).
 
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
+#### Max Acceleration and Jerk are not Exceeded.
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+The car does not exceed a total acceleration of 10 m/s^2 and a jerk of 10 m/s^3 (please see the animation bellow).
+
+#### Car does not have collisions.
+
+The car does not come into contact with any of the other cars on the road. In order to change the lane the car considers not only a gap in front but also the car's distance and velocity behind it in the lane it wants to switch to  (please see the animation bellow).
+
+#### The car stays in its lane, except for the time between changing lanes.
+
+The car doesn't spend more than a 3 second length out side the lane lanes during changing lanes, and every other time the car stays inside one of the 3 lanes on the right hand side of the road (please see the animation bellow).
+
+#### The car is able to change lanes.
+
+The car is able to smoothly change lanes when it makes sense to do so, such as when behind a slower moving car and an adjacent lane is clear of other traffic.
+
+![Simulator run](imgs/simulator_run.gif)
+
+### Reflection
+
+#### There is a reflection on how to generate paths.
+
 

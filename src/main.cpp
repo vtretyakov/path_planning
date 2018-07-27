@@ -289,7 +289,7 @@ int main() {
                 {
                   //do some logic here, lower reference velocity so we don't crach into the car in front of us
                   //could also flag to try to change lanes
-                  //ref_vel = 29.5;//mph
+                  
                   if ((check_car_s-car_s) < 15){
                     close_to_collide = true;
                   } else {

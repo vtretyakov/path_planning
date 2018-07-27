@@ -7,7 +7,6 @@
 
 #include "helper.hpp"
 #include <iostream>
-#include <algorithm>
 #include <cmath>
 #include <stdlib.h>
 
@@ -17,9 +16,7 @@ Helper::Helper() {
   _prepare_to_change_lane = false;
 }
 
-Helper::~Helper() {
-    
-}
+Helper::~Helper(){}
 
 vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>> &fusion_data, double car_s, double car_d, int prev_path_size, double threshold) {
   vector<double> smallest_car_dist_per_lane = {10000.0,10000.0,10000.0};
@@ -40,16 +37,6 @@ vector<double> Helper::get_closest_car_dist_in_lanes(const vector<vector<double>
     }
   }
   return smallest_car_dist_per_lane;
-}
-
-vector<double> Helper::get_closest_cer_vel_in_lanes() {
-  vector<double> car_vel;
-    
-  return car_vel;
-}
-
-bool Helper::increasing_order(int i, int j) {
-  return (i<j);
 }
 
 int Helper::get_best_lane(vector<double> closest_car_dist_in_lane) {
